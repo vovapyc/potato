@@ -3,8 +3,8 @@ import { ref, onMounted } from 'vue';
 import Button from './components/Button.vue';
 
 const imageSrc = ref<string | null>(null);
-const isProcessing = ref<boolean>(false);
 const isCameraAvailable = ref<boolean>(true);
+const potatoStatus = ref<"processing" | "yes" | "no" | "error" | null>(null);
 
 const triggerUpload = () => {
   // Click the hidden file input to open the file picker
@@ -19,7 +19,7 @@ const onFileChange = (event: Event) => {
   const file = target.files?.[0];
   if (file) {
     imageSrc.value = URL.createObjectURL(file);
-    isProcessing.value = true;
+    potatoStatus.value = "processing";
   }
 };
 
@@ -49,12 +49,17 @@ const capturePhoto = () => {
   if (context) {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     imageSrc.value = canvas.toDataURL('image/png');
-    isProcessing.value = true;
+    potatoStatus.value = "processing";
   }
+
+  // Simulate processing time
+  setTimeout(() => {
+    potatoStatus.value = "yes";
+  }, 2000);
 };
 
 const resetProcessing = () => {
-  isProcessing.value = false;
+  potatoStatus.value = null;
   imageSrc.value = null;
   startCamera();
 };
@@ -66,18 +71,27 @@ onMounted(() => {
 
 <template>
   <div
-    class="block sm:hidden fixed inset-0 w-screen h-[100dvh] overflow-hidden flex flex-col items-center justify-between bg-black text-white p-4">
+    class="block sm:hidden fixed inset-0 w-screen h-[100dvh] flex flex-col items-center justify-between bg-black text-white p-4">
     <div class="flex flex-col items-center space-y-2">
       <h1 class="text-xl m-2 press-start-2p-regular uppercase">Is this a potato?</h1>
       <p class="text-xs text-gray-400 font-mono">Certified Potato Classifier 🥔</p>
     </div>
 
-    <div class="flex-1 flex items-center justify-center w-full overflow-hidden">
-      <div class="bg-gray-800 w-full max-w-sm aspect-square flex items-center justify-center">
+    <div class="flex-1 flex items-center justify-center w-full">
+      <div class="bg-gray-800 w-full max-w-sm aspect-square flex flex-col relative">
+        <div v-if="potatoStatus !== null" :class="[
+          'absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-1 rounded-full text-center press-start-2p-regular text-lg uppercase shadow-md text-black',
+          potatoStatus === 'processing' ? 'bg-yellow-300' :
+            potatoStatus === 'yes' ? 'bg-green-300' :
+              potatoStatus === 'no' ? 'bg-red-400' : ''
+        ]">
+          {{ potatoStatus }}
+        </div>
         <input type="file" accept="image/*" class="hidden" id="fileInput" @change="onFileChange" />
         <img v-if="imageSrc" :src="imageSrc" alt="Uploaded" class="object-cover w-full h-full" />
         <template v-else>
-          <div v-if="!isCameraAvailable" class="flex items-center justify-center text-center p-4 text-red-400 press-start-2p-regular text-xs uppercase leading-relaxed">
+          <div v-if="!isCameraAvailable"
+            class="flex items-center justify-center text-center p-4 text-red-400 press-start-2p-regular text-xs uppercase leading-relaxed">
             Camera access denied<br />
             Please upload a photo
           </div>
@@ -87,7 +101,7 @@ onMounted(() => {
     </div>
 
     <div class="flex justify-around w-full max-w-sm mb-6">
-      <template v-if="!isProcessing">
+      <template v-if="potatoStatus === null">
         <Button @click="triggerUpload">📂 Upload</Button>
         <Button @click="capturePhoto" :disabled="!isCameraAvailable">📷 Camera</Button>
       </template>
