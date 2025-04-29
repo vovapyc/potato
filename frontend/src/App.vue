@@ -96,7 +96,7 @@ onMounted(() => {
   ]">
     <div class="flex flex-col items-center space-y-2">
       <h1 class="text-xl m-2 press-start-2p-regular uppercase">Is this a potato?</h1>
-      <p class="text-xs text-gray-400 font-mono">Certified Potato Classifier 🥔</p>
+      <p class="text-xs text-gray-400 font-mono">No potatoes were harmed during testing</p>
     </div>
 
     <input type="file" accept="image/*" class="hidden" id="fileInput" @change="onFileChange" />
