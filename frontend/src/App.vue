@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Button from './components/Button.vue';
+import DragNDropFile from './components/DragNDropFile.vue';
+import PotatoStatusLabel from './components/PotatoStatusLabel.vue';
+
+// It's needed to enable camera access on mobile devices
+const MOBILE_BREAKPOINT_PX = 640;
+const isMobile = ref<boolean>(window.innerWidth < MOBILE_BREAKPOINT_PX);
 
 const imageSrc = ref<string | null>(null);
 const isCameraAvailable = ref<boolean>(true);
@@ -21,6 +27,11 @@ const onFileChange = (event: Event) => {
     imageSrc.value = URL.createObjectURL(file);
     potatoStatus.value = "processing";
   }
+
+  // Simulate processing time
+  setTimeout(() => {
+    potatoStatus.value = "yes";
+  }, 2000);
 };
 
 const startCamera = async () => {
@@ -61,37 +72,42 @@ const capturePhoto = () => {
 const resetProcessing = () => {
   potatoStatus.value = null;
   imageSrc.value = null;
-  startCamera();
+  if (isMobile.value) startCamera();
+};
+
+const updateIsMobile = () => {
+  const wasMobile = isMobile.value;
+  isMobile.value = window.innerWidth < 640;
+  if (!wasMobile && isMobile.value) {
+    startCamera();
+  }
 };
 
 onMounted(() => {
-  startCamera();
+  window.addEventListener('resize', updateIsMobile);
+  if (isMobile.value) startCamera();
 });
 </script>
 
 <template>
-  <div
-    class="block sm:hidden fixed inset-0 w-screen h-[100dvh] flex flex-col items-center justify-between bg-black text-white p-4">
+  <div :class="[
+    'bg-black text-white p-4 items-center flex flex-col',
+    isMobile ? 'fixed inset-0 w-screen h-[100dvh] justify-between' : 'justify-center min-h-screen space-y-6'
+  ]">
     <div class="flex flex-col items-center space-y-2">
       <h1 class="text-xl m-2 press-start-2p-regular uppercase">Is this a potato?</h1>
       <p class="text-xs text-gray-400 font-mono">Certified Potato Classifier 🥔</p>
     </div>
 
-    <div class="flex-1 flex items-center justify-center w-full">
+    <input type="file" accept="image/*" class="hidden" id="fileInput" @change="onFileChange" />
+
+    <div v-if="isMobile" class="flex-1 flex items-center justify-center w-full">
       <div class="bg-gray-800 w-full max-w-sm aspect-square flex flex-col relative">
-        <div v-if="potatoStatus !== null" :class="[
-          'absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-1 rounded-full text-center press-start-2p-regular text-lg uppercase shadow-md text-black',
-          potatoStatus === 'processing' ? 'bg-yellow-300' :
-            potatoStatus === 'yes' ? 'bg-green-300' :
-              potatoStatus === 'no' ? 'bg-red-400' : ''
-        ]">
-          {{ potatoStatus }}
-        </div>
-        <input type="file" accept="image/*" class="hidden" id="fileInput" @change="onFileChange" />
+        <potatoStatusLabel :status="potatoStatus" />
         <img v-if="imageSrc" :src="imageSrc" alt="Uploaded" class="object-cover w-full h-full" />
         <template v-else>
           <div v-if="!isCameraAvailable"
-            class="flex items-center justify-center text-center p-4 text-red-400 press-start-2p-regular text-xs uppercase leading-relaxed">
+            class="flex items-center justify-center text-center text-red-400 press-start-2p-regular text-xs uppercase leading-relaxed">
             Camera access denied<br />
             Please upload a photo
           </div>
@@ -100,20 +116,26 @@ onMounted(() => {
       </div>
     </div>
 
+    <div v-if="!isMobile" class="items-center flex flex-col w-full">
+      <div v-if="imageSrc" class="relative mt-6">
+        <potatoStatusLabel :status="potatoStatus" />
+        <img :src="imageSrc" alt="Uploaded" class="object-cover w-full h-full max-w-md aspect-square" />
+      </div>
+      <DragNDropFile v-else :uploadFunc="triggerUpload" :fileChangeFunc="onFileChange" />
+    </div>
+
     <div class="flex justify-around w-full max-w-sm mb-6">
-      <template v-if="potatoStatus === null">
+      <template v-if="isMobile && potatoStatus === null">
         <Button @click="triggerUpload">📂 Upload</Button>
         <Button @click="capturePhoto" :disabled="!isCameraAvailable">📷 Camera</Button>
       </template>
-      <template v-else>
+      <template v-if="potatoStatus !== null">
         <div class="flex justify-center w-full">
           <Button @click="resetProcessing">🔄 Classify more</Button>
         </div>
       </template>
     </div>
   </div>
-
-  <div class="hidden sm:block">Please use mobile version</div>
 </template>
 
 <style scoped>
