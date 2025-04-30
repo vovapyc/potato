@@ -49,4 +49,4 @@ async def predict(file: UploadFile = File(...)) -> ResponseBody:
     preds = logreg.predict(features.cpu().numpy())
     label = class_names[preds[0]]
     
-    return {"prediction": label}
+    return {'is_potato': label == 'potato'}
