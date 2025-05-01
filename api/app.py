@@ -5,7 +5,6 @@ from PIL import Image
 import torch
 import timm
 import joblib
-import numpy as np
 from torchvision import transforms
 from pydantic import BaseModel
 

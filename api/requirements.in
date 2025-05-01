@@ -4,7 +4,6 @@ pydantic
 pillow
 timm
 joblib
-numpy
 scikit-learn
 torch
 torchvision
