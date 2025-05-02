@@ -12,7 +12,7 @@ const { status } = defineProps<{
         'absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-1 rounded-full text-center press-start-2p-regular text-lg uppercase shadow-md text-black',
         status === 'processing' ? 'bg-yellow-300' :
             status === 'yes' ? 'bg-green-300' :
-                status === 'no' ? 'bg-red-400' : ''
+                status === 'no' ? 'bg-red-400' : 'bg-red-500'
     ]">
         {{ status }}
     </div>

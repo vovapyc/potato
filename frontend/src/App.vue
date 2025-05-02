@@ -4,6 +4,8 @@ import Button from './components/Button.vue';
 import DragNDropFile from './components/DragNDropFile.vue';
 import PotatoStatusLabel from './components/PotatoStatusLabel.vue';
 
+const API_URL = "https://potato-538350336582.us-west1.run.app/predict/";
+
 // It's needed to enable camera access on mobile devices
 const MOBILE_BREAKPOINT_PX = 640;
 const isMobile = ref<boolean>(window.innerWidth < MOBILE_BREAKPOINT_PX);
@@ -11,6 +13,23 @@ const isMobile = ref<boolean>(window.innerWidth < MOBILE_BREAKPOINT_PX);
 const imageSrc = ref<string | null>(null);
 const isCameraAvailable = ref<boolean>(true);
 const potatoStatus = ref<"processing" | "yes" | "no" | "error" | null>(null);
+
+async function classifyImage(file: File | Blob) {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await resp.json();
+    potatoStatus.value = data.is_potato ? 'yes' : 'no';
+  } catch (err) {
+    console.error('API error', err);
+    potatoStatus.value = 'error';
+  }
+}
+
 
 const triggerUpload = () => {
   // Click the hidden file input to open the file picker
@@ -26,12 +45,8 @@ const onFileChange = (event: Event) => {
   if (file) {
     imageSrc.value = URL.createObjectURL(file);
     potatoStatus.value = "processing";
+    classifyImage(file);
   }
-
-  // Simulate processing time
-  setTimeout(() => {
-    potatoStatus.value = "yes";
-  }, 2000);
 };
 
 const startCamera = async () => {
@@ -61,12 +76,8 @@ const capturePhoto = () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     imageSrc.value = canvas.toDataURL('image/png');
     potatoStatus.value = "processing";
+    classifyImage(canvas.toBlob() as Blob);
   }
-
-  // Simulate processing time
-  setTimeout(() => {
-    potatoStatus.value = "yes";
-  }, 2000);
 };
 
 const resetProcessing = () => {

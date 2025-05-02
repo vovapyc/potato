@@ -5,6 +5,7 @@ import timm
 import joblib
 from torchvision import transforms
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class ResponseBody(BaseModel):
@@ -13,6 +14,18 @@ class ResponseBody(BaseModel):
 
 app = FastAPI()
 
+# CORS middleware
+origins = [
+    "http://localhost:5173",
+    "https://vovapyc.github.io/potato",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load models
 emb_model = timm.create_model("nextvit_small.bd_ssld_6m_in1k_384", pretrained=True)
