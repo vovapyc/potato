@@ -68,16 +68,27 @@ const startCamera = async () => {
 const capturePhoto = () => {
   const video = document.getElementById('video') as HTMLVideoElement;
   if (!video) return;
+
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
-  if (context) {
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    imageSrc.value = canvas.toDataURL('image/png');
-    potatoStatus.value = "processing";
-    classifyImage(canvas.toBlob() as Blob);
-  }
+  if (!context) return;
+
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Convert canvas to Blob and then handle upload
+  canvas.toBlob((blob) => {
+    if (blob) {
+      // Preview via blob URL
+      imageSrc.value = URL.createObjectURL(blob);
+      potatoStatus.value = 'processing';
+      classifyImage(blob);
+    } else {
+      console.error('Failed to capture image blob');
+      potatoStatus.value = 'error';
+    }
+  }, 'image/jpeg');
 };
 
 const resetProcessing = () => {
