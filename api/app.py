@@ -17,7 +17,7 @@ app = FastAPI()
 # CORS middleware
 origins = [
     "http://localhost:5173",
-    "https://vovapyc.github.io/potato",
+    "https://vovapyc.github.io",
 ]
 app.add_middleware(
     CORSMiddleware,
