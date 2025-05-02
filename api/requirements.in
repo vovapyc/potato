@@ -1,0 +1,9 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+fastapi[standard]
+pydantic
+pillow
+timm
+joblib
+scikit-learn
+torch
+torchvision
