@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from potatoPredictor import PotatoPredictor
+from potato_predictor import PotatoPredictor
 
 
 class ResponseBody(BaseModel):
