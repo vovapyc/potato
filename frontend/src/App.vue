@@ -4,7 +4,7 @@ import Button from './components/Button.vue';
 import DragNDropFile from './components/DragNDropFile.vue';
 import PotatoStatusLabel from './components/PotatoStatusLabel.vue';
 
-const API_URL = "https://potato-538350336582.us-west1.run.app/predict/";
+const API_URL = "https://potato-api.fly.dev/predict/";
 
 // It's needed to enable camera access on mobile devices
 const MOBILE_BREAKPOINT_PX = 640;
