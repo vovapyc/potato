@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from potatoPredictor import PotatoPredictor
+from potato_predictor import PotatoPredictor
 
 
 class ResponseBody(BaseModel):
@@ -24,6 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)) -> ResponseBody:
     # Initialize the predictor with ONNX model path
@@ -32,7 +33,4 @@ async def predict(file: UploadFile = File(...)) -> ResponseBody:
     # Make a prediction on an image
     is_potato, prob = predictor.predict(file.file)
 
-    return {
-        "is_potato": is_potato,         
-        "probability": round(prob, 4)   
-    }
+    return {"is_potato": is_potato, "probability": round(prob, 4)}
