@@ -15,6 +15,7 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "https://projects.byvova.com",
+    "https://byvova.com",
 ]
 app.add_middleware(
     CORSMiddleware,
